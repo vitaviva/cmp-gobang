@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
+import io.rsocket.kotlin.payload.Payload
+import kotlinx.coroutines.flow.Flow
 
 expect fun getPlatformName(): String
 
@@ -31,3 +33,9 @@ expect fun VerticalScrollbar(
     modifier: Modifier,
     adapter: ScrollbarAdapter
 )
+
+expect suspend fun initWs()
+
+expect fun remoteFlow(): Flow<Payload>
+
+expect suspend fun sendToRemote(str: String)

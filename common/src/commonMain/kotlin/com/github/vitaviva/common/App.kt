@@ -1,6 +1,5 @@
 package com.github.vitaviva.common
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
@@ -9,9 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Checkbox
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
@@ -46,6 +43,7 @@ fun App() {
         val viewModel = remember { AppViewModel() }
 
         val curChessType by viewModel.curChessType.collectAsState(CHESS_NONE)
+        val remoteInfo by viewModel.pairedFlow.collectAsState("")
 
         Row(
             Modifier.scrollable(
@@ -74,6 +72,13 @@ fun App() {
                     )
                 }
 
+                Button(onClick = {
+                    viewModel.doPair()
+                }) {
+                    Text("Pairing")
+                }
+
+                Text(remoteInfo)
             }
 
         }

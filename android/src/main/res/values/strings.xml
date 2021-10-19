@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="server_host">10.78.57.44</string>
+<!--    <string name="server_host">192.168.3.13</string>-->
+</resources>

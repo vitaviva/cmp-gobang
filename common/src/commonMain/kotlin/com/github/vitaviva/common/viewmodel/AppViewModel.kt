@@ -3,8 +3,16 @@ package com.github.vitaviva.common.viewmodel
 import androidx.compose.ui.unit.IntOffset
 import com.github.vitaviva.common.gobang.BOARD_SIZE
 import com.github.vitaviva.common.gobang.LINE_COUNT
+import com.github.vitaviva.common.initWs
+import com.github.vitaviva.common.remoteFlow
+import com.github.vitaviva.common.sendToRemote
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 const val CHESS_NONE = 0
 const val CHESS_WHITE = 1
@@ -13,6 +21,17 @@ const val CHESS_BLACK = 2
 class AppViewModel(
 ) : ViewController() {
 
+    fun doPair() {
+        GlobalScope.launch {
+            initWs()
+            delay(1000)
+            remoteFlow().collect {
+                pairedFlow.emit(it.data.readText())
+            }
+        }
+    }
+
+    val pairedFlow = MutableSharedFlow<String>()
 
     private var _currentCheesType = MutableStateFlow(CHESS_WHITE)
     val curChessType: Flow<Int>
@@ -37,6 +56,9 @@ class AppViewModel(
         new[offset.x][offset.y] = _currentCheesType.value
 
         _board.value = new
+        GlobalScope.launch {
+            sendToRemote(offset.toString())
+        }
     }
 
 

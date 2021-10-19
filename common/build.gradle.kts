@@ -23,10 +23,20 @@ kotlin {
     }
     sourceSets {
         val commonMain by getting {
+            val RSocketVersion = "0.13.1"
+
             dependencies {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+
+                //RSocket & Ktor
+                implementation("io.rsocket.kotlin:rsocket-core:$RSocketVersion")
+                implementation("io.rsocket.kotlin:rsocket-transport-ktor:$RSocketVersion") // TCP ktor transport
+                implementation("io.rsocket.kotlin:rsocket-transport-ktor-client:$RSocketVersion")// WS ktor transport client plugin
+                implementation("io.rsocket.kotlin:rsocket-transport-ktor-server:$RSocketVersion")// WS ktor transport server plugin
+                implementation("io.ktor:ktor-client-cio:1.6.2")
+                implementation("io.ktor:ktor-server-cio:1.6.2")
             }
         }
         val commonTest by getting {
@@ -56,5 +66,10 @@ android {
     defaultConfig {
         minSdkVersion(24)
         targetSdkVersion(29)
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
