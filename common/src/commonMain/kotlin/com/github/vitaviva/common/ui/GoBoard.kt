@@ -2,6 +2,8 @@ package com.github.vitaviva.common.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -26,10 +28,12 @@ import com.github.vitaviva.common.ui.BoardDrawInfo.GridHeight
 import com.github.vitaviva.common.ui.BoardDrawInfo.GridWidth
 import com.github.vitaviva.common.ui.BoardDrawInfo.calcLinePoints
 import com.github.vitaviva.common.viewmodel.AppViewModel
+import com.github.vitaviva.common.viewmodel.GAME_PLAYING
 import com.github.vitaviva.common.viewmodel.STONE_BLACK
 import com.github.vitaviva.common.viewmodel.STONE_WHITE
 import kotlinx.coroutines.launch
 import java.lang.Float.min
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 
@@ -41,56 +45,59 @@ fun GoBoard(
     viewModel: AppViewModel
 ) {
     val boardData by viewModel.boardData.collectAsState(Array(BOARD_SIZE) { IntArray(BOARD_SIZE) })
-
     val scope = rememberCoroutineScope()
-    with(LocalDensity.current) {
-        val (linePaint, framePaint) = remember {
-            Paint().apply {
-                color = Color.Black
-                isAntiAlias = true
-                strokeWidth = BOARD_LINE_WIDTH_DP.dp.toPx()
-            } to Paint().apply {
-                color = Color.Black
-                isAntiAlias = true
-                strokeWidth = BOARD_FRAME_WIDTH_DP.dp.toPx()
-            }
-        }
 
-        DisposableEffect(Unit) { //init
-            viewModel.clearBoard()
-            onDispose { }
-        }
-
-        Canvas(modifier = modifier.pointerInput(Unit) {
-            scope.launch {//demonstrate detectDragGestures
-                detectTapGestures {
-                    viewModel.placeStone(convertPoint(it.x, it.y))
+    Box(modifier) {
+        with(LocalDensity.current) {
+            val (linePaint, framePaint) = remember {
+                Paint().apply {
+                    color = Color.Black
+                    isAntiAlias = true
+                    strokeWidth = BOARD_LINE_WIDTH_DP.dp.toPx()
+                } to Paint().apply {
+                    color = Color.Black
+                    isAntiAlias = true
+                    strokeWidth = BOARD_FRAME_WIDTH_DP.dp.toPx()
                 }
             }
-        }) {
-            if (!BoardDrawInfo.isInitialized) {
-                val min = min(size.width, size.height)
-                calcLinePoints(min, min)
+
+            DisposableEffect(Unit) { //init
+                viewModel.clearStones()
+                onDispose { }
             }
 
-            drawLines(linePaint, framePaint)
-            drawBlackPoints(BOARD_POINT_RADIUS_DP.dp.toPx())
-            drawStones(boardData)
+            Canvas(modifier = modifier.fillMaxSize().pointerInput(Unit) {
+                scope.launch {
+                    detectTapGestures {
+                        viewModel.placeStone(convertPoint(it.x, it.y))
+                    }
+                }
+            }) {
+                if (!BoardDrawInfo.isInitialized) {
+                    val min = min(size.width, size.height)
+                    calcLinePoints(min, min)
+                }
+
+                drawLines(linePaint, framePaint)
+                drawBlackPoints(BOARD_POINT_RADIUS_DP.dp.toPx())
+                drawStones(boardData)
+            }
         }
     }
 
 }
 
+
 private fun convertPoint(x: Float, y: Float): IntOffset {
-    val i = Math.rint(((x - BOARD_MARGIN) / GridWidth).toDouble()).toInt()
-    val j = Math.rint(((y - BOARD_MARGIN) / GridWidth).toDouble()).toInt()
+    val i = round(((x - BOARD_MARGIN) / GridWidth).toDouble()).toInt()
+    val j = round(((y - BOARD_MARGIN) / GridWidth).toDouble()).toInt()
     return IntOffset(i, j)
 }
 
 private fun DrawScope.drawLines(linePaint: Paint, framePaint: Paint) {
 
     drawIntoCanvas { canvas ->
-        fun drawLines(linePoints: FloatArray, paint:Paint) {
+        fun drawLines(linePoints: FloatArray, paint: Paint) {
             for (i in linePoints.indices step 4) {
                 canvas.drawLine(
                     Offset(

@@ -23,7 +23,7 @@ actual suspend fun initWsConnect() {
 
 actual fun receiveFromRemote(): Flow<Payload> = _requestFlow.onStart {
     emit(buildPayload {
-        metadata(Message.TypeSysInfo)
+        metadata(Message.TypeGameLog)
         data("waiting pair ...")
     })
 }

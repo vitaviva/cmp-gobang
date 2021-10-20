@@ -6,7 +6,6 @@ import com.github.vitaviva.common.api.Message
 import com.github.vitaviva.common.ui.BOARD_SIZE
 import com.github.vitaviva.common.ui.LINE_COUNT
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -14,14 +13,16 @@ import kotlinx.coroutines.launch
 const val STONE_NONE = 0
 const val STONE_WHITE = 1
 const val STONE_BLACK = 2
+const val GAME_PLAYING = 0
+const val GAME_WIN = 1
+const val GAME_LOST = 2
 
 class AppViewModel(
 ) : ViewController() {
 
-    @Volatile
-    private var _initConnected = false
-
-    val pairedFlow = MutableSharedFlow<String>()
+    private val _gameLog = MutableStateFlow("")
+    val gameLog: Flow<String>
+        get() = _gameLog
 
     private val _board = MutableStateFlow(Array(BOARD_SIZE) { IntArray(BOARD_SIZE) })
     val boardData: Flow<BoardData>
@@ -32,23 +33,32 @@ class AppViewModel(
         get() = _stoneColor
 
 
+    private var _isPaired = MutableStateFlow(false)
+    val isPaired: Flow<Boolean>
+        get() = _isPaired
+
+    private var _gameStatus = MutableStateFlow(GAME_PLAYING)
+    val gameStatus: Flow<Int>
+        get() = _gameStatus
+
     /**
      * do pair
      */
     fun doPair() {
         coroutineScope.launch {
             Api.connect()
-            _initConnected = true
-            Api.receiveMessage().collect {
-                when (it) {
-                    is Message.PlaceStone -> _placeStone(
-                        it.offset, _stoneColor.value != STONE_WHITE
-                    )
-                    is Message.ChooseColor -> _setStoneColor(!it.isWhite)
-                    else -> {
-                    }
+            _isPaired.emit(true)
+            Api.receiveMessage().collect { msg ->
+                when (msg) {
+                    is Message.PlaceStone ->
+                        _placeStone(msg.offset, _stoneColor.value != STONE_WHITE)
+                            .also { _appendLog("${if (_stoneColor.value == STONE_WHITE) "b" else "w"}: ${msg.offset}") }
+                    is Message.ChooseColor -> _setStoneColor(!msg.isWhite)
+                    is Message.GameReset -> _clearStones()
+                    is Message.GameQuit -> TODO()
+                    is Message.GameLog -> _printLog(msg.toString())
                 }
-                pairedFlow.emit(it.toString())
+
             }
         }
     }
@@ -59,7 +69,7 @@ class AppViewModel(
      */
     fun setStoneColor(isWhite: Boolean) {
         _setStoneColor(isWhite)
-        if (_initConnected) {
+        if (_isPaired.value) {
             coroutineScope.launch {
                 Api.sendMessage(Message.ChooseColor(isWhite))
             }
@@ -75,18 +85,20 @@ class AppViewModel(
      */
     fun placeStone(offset: IntOffset) {
         if (_stoneColor.value == STONE_NONE) {
-            coroutineScope.launch {
-                pairedFlow.emit("please choose a color")
-            }
+            _printLog("please choose a color")
             return
         }
-        _placeStone(offset, _stoneColor.value == STONE_WHITE)
-        if (_initConnected) {
+
+        _placeStone(offset, _stoneColor.value == STONE_WHITE).apply {
+            _appendLog("${if (_stoneColor.value == STONE_WHITE) "w" else "b"}: ${offset}")
+        }
+        if (_isPaired.value) {
             coroutineScope.launch {
                 Api.sendMessage(Message.PlaceStone(offset))
             }
         }
     }
+
 
     private fun _placeStone(offset: IntOffset, isWhite: Boolean) {
         val cur = _board.value
@@ -97,13 +109,27 @@ class AppViewModel(
             it[offset.x][offset.y] = if (isWhite) STONE_WHITE else STONE_BLACK
         }
 
+        if (isGameEnd(_board.value, offset.x, offset.y)) {
+            _gameEnd(_stoneColor.value == if (isWhite) STONE_WHITE else STONE_BLACK)
+        }
     }
 
 
     /**
      * clear stones
      */
-    fun clearBoard() {
+    fun clearStones() {
+        _clearStones()
+        _gameStatus.value = GAME_PLAYING
+        if (_isPaired.value) {
+            coroutineScope.launch {
+                Api.sendMessage(Message.GameReset)
+            }
+        }
+    }
+
+    private fun _clearStones() {
+        _clearInfo()
         _board.value = _board.value.copyOf().also {
             for (row in 0 until LINE_COUNT) {
                 for (col in 0 until LINE_COUNT) {
@@ -113,6 +139,24 @@ class AppViewModel(
         }
     }
 
+    private fun _printLog(info: String) {
+        _gameLog.value = info
+    }
+
+    private var _appendLog: String = ""
+    private fun _appendLog(info: String) {
+        _appendLog = "$info\n$_appendLog"
+        _gameLog.value = _appendLog
+    }
+
+    private fun _clearInfo() {
+        _appendLog = ""
+        _gameLog.value = ""
+    }
+
+    private fun _gameEnd(isWin: Boolean) {
+        _gameStatus.value = if (isWin) GAME_WIN else GAME_LOST
+    }
 }
 
 

@@ -8,8 +8,9 @@ sealed class Message(val type: String) {
     companion object {
         val TypeChooseColor = "ChooseColor"
         val TypePlaceStone = "PlaceStone"
-        val TypeEndGame = "EndGame"
-        val TypeSysInfo = "SysInfo"
+        val TypeGameQuit = "GameQuit"
+        val TypeGameReset = "GameReset"
+        val TypeGameLog = "GameLog"
     }
 
     data class ChooseColor(val isWhite: Boolean) :
@@ -26,13 +27,19 @@ sealed class Message(val type: String) {
         }
     }
 
-    object EndGame : Message(TypeEndGame) {
+    object GameQuit : Message(TypeGameQuit) {
         override fun toString(): String {
             return "game end"
         }
     }
 
-    data class SysInfo(val info: String) : Message(TypeSysInfo) {
+    object GameReset : Message(TypeGameReset) {
+        override fun toString(): String {
+            return "game reset"
+        }
+    }
+
+    data class GameLog(val info: String) : Message(TypeGameLog) {
         override fun toString(): String {
             return info
         }

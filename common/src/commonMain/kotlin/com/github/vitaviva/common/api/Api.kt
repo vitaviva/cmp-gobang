@@ -2,9 +2,10 @@ package com.github.vitaviva.common.api
 
 import androidx.compose.ui.unit.IntOffset
 import com.github.vitaviva.common.api.Message.Companion.TypeChooseColor
-import com.github.vitaviva.common.api.Message.Companion.TypeEndGame
+import com.github.vitaviva.common.api.Message.Companion.TypeGameQuit
 import com.github.vitaviva.common.api.Message.Companion.TypePlaceStone
-import com.github.vitaviva.common.api.Message.Companion.TypeSysInfo
+import com.github.vitaviva.common.api.Message.Companion.TypeGameLog
+import com.github.vitaviva.common.api.Message.Companion.TypeGameReset
 import com.github.vitaviva.common.platform.initWsConnect
 import com.github.vitaviva.common.platform.receiveFromRemote
 import com.github.vitaviva.common.platform.sendToRemote
@@ -25,8 +26,9 @@ object Api {
                 Message.PlaceStone(IntOffset(x.toInt(), y.toInt()))
             }
             TypeChooseColor -> Message.ChooseColor(it.data.readText().toBoolean())
-            TypeEndGame -> Message.EndGame
-            TypeSysInfo -> Message.SysInfo(it.data.readText())
+            TypeGameQuit -> Message.GameQuit
+            TypeGameReset -> Message.GameReset
+            TypeGameLog -> Message.GameLog(it.data.readText())
             else -> error("Unknown message !")
         }
     }
