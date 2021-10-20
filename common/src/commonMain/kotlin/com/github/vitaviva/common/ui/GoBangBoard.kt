@@ -1,8 +1,7 @@
-package com.github.vitaviva.common.gobang
+package com.github.vitaviva.common.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -21,11 +20,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.github.vitaviva.common.BLACK_CHESS_BMP
+import com.github.vitaviva.common.platform.BlackChessBmp
 import com.github.vitaviva.common.viewmodel.AppViewModel
 import com.github.vitaviva.common.viewmodel.CHESS_BLACK
 import com.github.vitaviva.common.viewmodel.CHESS_WHITE
-import com.github.vitaviva.common.WHITE_CHESS_BMP
+import com.github.vitaviva.common.platform.WhiteChessBmp
 import kotlinx.coroutines.launch
 import java.lang.Float.min
 import kotlin.math.roundToInt
@@ -33,7 +32,6 @@ import kotlin.math.roundToInt
 
 const val LINE_COUNT = 15
 private const val BOARD_MARGIN = 40f
-private const val HALF_CHESS_SIZE = 35
 
 const val BOARD_SIZE = LINE_COUNT
 private const val BOARD_LINE_WIDTH_DP = 0.7f //棋盘线宽度
@@ -69,7 +67,7 @@ fun GoBangBoard(
         Canvas(modifier = modifier.pointerInput(Unit) {
             scope.launch {//demonstrate detectDragGestures
                 detectTapGestures {
-                    viewModel.putChess( convertPoint(it.x, it.y))
+                    viewModel.putChess(convertPoint(it.x, it.y))
                 }
             }
 
@@ -93,9 +91,9 @@ fun convertPoint(x: Float, y: Float): IntOffset {
     return IntOffset(i, j)
 }
 
-private const val mLineCount = LINE_COUNT
 private var mGridWidth = 0f
 private var mGridHeight = 0f
+
 private lateinit var mBoardFramePoints //棋盘边框
         : FloatArray
 private lateinit var mVerticalLinePoints //棋盘竖线
@@ -106,14 +104,14 @@ private lateinit var mBlackPoints //棋盘黑点
         : FloatArray
 
 private fun calcLinePoints(width: Float, height: Float) {
-    mHorizontalLinePoints = FloatArray(mLineCount * 4)
-    mVerticalLinePoints = FloatArray(mLineCount * 4)
+    mHorizontalLinePoints = FloatArray(LINE_COUNT * 4)
+    mVerticalLinePoints = FloatArray(LINE_COUNT * 4)
     val boardWidth: Float = width - BOARD_MARGIN * 2
     val boardHeight: Float = height - BOARD_MARGIN * 2
-    mGridWidth = boardWidth / (mLineCount - 1)
+    mGridWidth = boardWidth / (LINE_COUNT - 1)
     run {
         var i = 0
-        while (i < mLineCount * 4) {
+        while (i < LINE_COUNT * 4) {
             mVerticalLinePoints[i] = i * mGridWidth / 4 + BOARD_MARGIN
             mVerticalLinePoints[i + 1] = BOARD_MARGIN
             mVerticalLinePoints[i + 2] = i * mGridWidth / 4 + BOARD_MARGIN
@@ -121,9 +119,9 @@ private fun calcLinePoints(width: Float, height: Float) {
             i += 4
         }
     }
-    mGridHeight = boardHeight / (mLineCount - 1)
+    mGridHeight = boardHeight / (LINE_COUNT - 1)
     var i = 0
-    while (i < mLineCount * 4) {
+    while (i < LINE_COUNT * 4) {
         mHorizontalLinePoints[i] = BOARD_MARGIN
         mHorizontalLinePoints[i + 1] = i * mGridHeight / 4 + BOARD_MARGIN
         mHorizontalLinePoints[i + 2] = boardWidth + BOARD_MARGIN
@@ -208,6 +206,7 @@ fun DrawScope.drawBlackPoints(radius: Float) {
 
 fun DrawScope.drawChess(mBoard: Array<IntArray>) {
 
+    val halfChessSize = (mGridWidth / 2f).roundToInt()
     drawIntoCanvas { canvas ->
         canvas.withSave {
             for (row in 0 until LINE_COUNT) {
@@ -215,21 +214,22 @@ fun DrawScope.drawChess(mBoard: Array<IntArray>) {
                     val x = BOARD_MARGIN + col * mGridWidth
                     val y = BOARD_MARGIN + row * mGridHeight
                     val offset = IntOffset(
-                        (x - HALF_CHESS_SIZE).roundToInt(),
-                        (y - HALF_CHESS_SIZE).roundToInt()
+                        (x - halfChessSize).roundToInt(),
+                        (y - halfChessSize).roundToInt()
                     )
-                    if (mBoard[col][row] == CHESS_WHITE) {
+                    val bmp = when (mBoard[col][row]) {
+                        CHESS_WHITE -> WhiteChessBmp
+                        CHESS_BLACK -> BlackChessBmp
+                        else -> null
+                    }
+                    bmp?.let {
                         canvas.drawImageRect(
-                            WHITE_CHESS_BMP,
+                            it,
                             dstOffset = offset,
-                            dstSize = IntSize(HALF_CHESS_SIZE * 2, HALF_CHESS_SIZE * 2),
-                            paint = Paint()
-                        )
-                    } else if (mBoard[col][row] == CHESS_BLACK) {
-                        canvas.drawImageRect(
-                            BLACK_CHESS_BMP,
-                            dstOffset = offset,
-                            dstSize = IntSize(HALF_CHESS_SIZE * 2, HALF_CHESS_SIZE * 2),
+                            dstSize = IntSize(
+                                halfChessSize * 2,
+                                halfChessSize * 2
+                            ),
                             paint = Paint()
                         )
                     }

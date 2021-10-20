@@ -14,6 +14,7 @@ import io.rsocket.kotlin.payload.data
 import io.rsocket.kotlin.transport.ktor.client.RSocketSupport
 import io.rsocket.kotlin.transport.ktor.client.rSocket
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.minutes
 import kotlin.time.seconds
@@ -26,10 +27,10 @@ val client by lazy {
             connector = RSocketConnector {
                 //configure rSocket connector (all values have defaults)
                 connectionConfig {
-//                keepAlive = KeepAlive(
-//                    interval = 30.seconds,
-//                    maxLifetime = 2.minutes
-//                )
+                    keepAlive = KeepAlive(
+                        interval = Duration.seconds(30),
+                        maxLifetime = Duration.minutes(2)
+                    )
 
                     //payload for setup frame
                     setupPayload { buildPayload { data("hello") } }
@@ -41,12 +42,12 @@ val client by lazy {
 //                )
                 }
 
-//            //optional acceptor for server requests
-//            acceptor {
-//                RSocketRequestHandler {
-//                    requestResponse { it } //echo request payload
-//                }
-//            }
+                //optional acceptor for server requests
+                acceptor {
+                    RSocketRequestHandler {
+                        requestResponse { it } //echo request payload
+                    }
+                }
             }
         }
     }

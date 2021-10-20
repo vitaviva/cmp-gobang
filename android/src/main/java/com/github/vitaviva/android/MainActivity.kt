@@ -3,9 +3,12 @@ package com.github.vitaviva.android
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import com.github.vitaviva.common.App
-import com.github.vitaviva.common.Res
-import com.github.vitaviva.common.initPlatformResource
+import com.github.vitaviva.common.platform.Res
+import com.github.vitaviva.common.platform.initPlatformResource
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,3 +27,10 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+@Composable
+@Preview
+fun preview() {
+    Box {
+        App()
+    }
+}
