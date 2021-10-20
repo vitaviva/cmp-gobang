@@ -7,7 +7,7 @@
     <application
         android:allowBackup="false"
         android:supportsRtl="true"
-        android:icon="@mipmap/chess_black"
+        android:icon="@mipmap/stone_black"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".MainActivity">
             <intent-filter>

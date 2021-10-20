@@ -29,6 +29,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                api(compose.ui)
 
                 //RSocket & Ktor
                 implementation("io.rsocket.kotlin:rsocket-core:$rSocketVersion")

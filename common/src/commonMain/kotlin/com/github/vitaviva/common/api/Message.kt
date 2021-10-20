@@ -7,7 +7,7 @@ sealed class Message(val type: String) {
 
     companion object {
         val TypeChooseColor = "ChooseColor"
-        val TypePutChess = "PutChess"
+        val TypePlaceStone = "PlaceStone"
         val TypeEndGame = "EndGame"
         val TypeSysInfo = "SysInfo"
     }
@@ -19,8 +19,8 @@ sealed class Message(val type: String) {
         }
     }
 
-    data class PutChess(val offset: IntOffset) :
-        Message(TypePutChess) {
+    data class PlaceStone(val offset: IntOffset) :
+        Message(TypePlaceStone) {
         override fun toString(): String {
             return "${offset.x},${offset.y}"
         }

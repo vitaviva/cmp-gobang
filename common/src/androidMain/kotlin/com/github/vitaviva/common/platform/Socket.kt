@@ -26,17 +26,6 @@ actual suspend fun initWsConnect() {
     if (!::_requestFlow.isInitialized) {
         _requestFlow = MutableSharedFlow()
         _responseFlow = rSocket.requestChannel(buildPayload { data("Init") }, _requestFlow)
-//        GlobalScope.launch(Dispatchers.IO) {
-//            delay(5000)
-//            repeat(10) { it ->
-//                _requestFlow.emit(buildPayload {
-//                    println(">>>>>>> $it")
-//                    metadata("PutChess")
-//                    data("0,0")
-//                })
-//            }
-//
-//        }
     } else {
         throw RuntimeException("duplicated init")
     }

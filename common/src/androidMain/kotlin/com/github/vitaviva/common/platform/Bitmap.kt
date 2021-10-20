@@ -4,9 +4,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 
 
-actual val BlackChessBmp: ImageBitmap by lazy {
-    ImageBitmap.imageResource(_resources, _res.blackChess)
+actual val BlackStoneBmp: ImageBitmap by lazy {
+    ImageBitmap.imageResource(_resources, _res.blackStone)
 }
-actual val WhiteChessBmp: ImageBitmap by lazy {
-    ImageBitmap.imageResource(_resources, _res.whiteChess)
+actual val WhiteStoneBmp: ImageBitmap by lazy {
+    ImageBitmap.imageResource(_resources, _res.whiteStone)
 }

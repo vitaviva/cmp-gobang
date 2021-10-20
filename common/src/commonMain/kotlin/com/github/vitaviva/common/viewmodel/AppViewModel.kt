@@ -3,7 +3,6 @@ package com.github.vitaviva.common.viewmodel
 import androidx.compose.ui.unit.IntOffset
 import com.github.vitaviva.common.api.Api
 import com.github.vitaviva.common.api.Message
-import com.github.vitaviva.common.platform.getPlatformName
 import com.github.vitaviva.common.ui.BOARD_SIZE
 import com.github.vitaviva.common.ui.LINE_COUNT
 import kotlinx.coroutines.flow.Flow
@@ -12,9 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-const val CHESS_NONE = 0
-const val CHESS_WHITE = 1
-const val CHESS_BLACK = 2
+const val STONE_NONE = 0
+const val STONE_WHITE = 1
+const val STONE_BLACK = 2
 
 class AppViewModel(
 ) : ViewController() {
@@ -28,9 +27,9 @@ class AppViewModel(
     val boardData: Flow<BoardData>
         get() = _board
 
-    private var _chessColor = MutableStateFlow(CHESS_NONE)
-    val chessColor: Flow<Int>
-        get() = _chessColor
+    private var _stoneColor = MutableStateFlow(STONE_NONE)
+    val stoneColor: Flow<Int>
+        get() = _stoneColor
 
 
     /**
@@ -42,10 +41,10 @@ class AppViewModel(
             _initConnected = true
             Api.receiveMessage().collect {
                 when (it) {
-                    is Message.PutChess -> putChessInternal(
-                        it.offset, _chessColor.value != CHESS_WHITE
+                    is Message.PlaceStone -> _placeStone(
+                        it.offset, _stoneColor.value != STONE_WHITE
                     )
-                    is Message.ChooseColor -> setChessColorInternal(!it.isWhite)
+                    is Message.ChooseColor -> _setStoneColor(!it.isWhite)
                     else -> {
                     }
                 }
@@ -56,10 +55,10 @@ class AppViewModel(
 
 
     /**
-     * select chess type
+     * select stone color
      */
-    fun setChessColor(isWhite: Boolean) {
-        setChessColorInternal(isWhite)
+    fun setStoneColor(isWhite: Boolean) {
+        _setStoneColor(isWhite)
         if (_initConnected) {
             coroutineScope.launch {
                 Api.sendMessage(Message.ChooseColor(isWhite))
@@ -67,48 +66,48 @@ class AppViewModel(
         }
     }
 
-    private fun setChessColorInternal(isWhite: Boolean) {
-        _chessColor.value = if (isWhite) CHESS_WHITE else CHESS_BLACK
+    private fun _setStoneColor(isWhite: Boolean) {
+        _stoneColor.value = if (isWhite) STONE_WHITE else STONE_BLACK
     }
 
     /**
-     * add chess
+     * place stone
      */
-    fun putChess(offset: IntOffset) {
-        if (_chessColor.value == CHESS_NONE) {
+    fun placeStone(offset: IntOffset) {
+        if (_stoneColor.value == STONE_NONE) {
             coroutineScope.launch {
                 pairedFlow.emit("please choose a color")
             }
             return
         }
-        putChessInternal(offset, _chessColor.value == CHESS_WHITE)
+        _placeStone(offset, _stoneColor.value == STONE_WHITE)
         if (_initConnected) {
             coroutineScope.launch {
-                Api.sendMessage(Message.PutChess(offset))
+                Api.sendMessage(Message.PlaceStone(offset))
             }
         }
     }
 
-    private fun putChessInternal(offset: IntOffset, isWhite: Boolean) {
+    private fun _placeStone(offset: IntOffset, isWhite: Boolean) {
         val cur = _board.value
-        if (cur[offset.x][offset.y] != CHESS_NONE) {
+        if (cur[offset.x][offset.y] != STONE_NONE) {
             return
         }
         _board.value = cur.copyOf().also {
-            it[offset.x][offset.y] = if (isWhite) CHESS_WHITE else CHESS_BLACK
+            it[offset.x][offset.y] = if (isWhite) STONE_WHITE else STONE_BLACK
         }
 
     }
 
 
     /**
-     * clear chess
+     * clear stones
      */
     fun clearBoard() {
         _board.value = _board.value.copyOf().also {
             for (row in 0 until LINE_COUNT) {
                 for (col in 0 until LINE_COUNT) {
-                    it[col][row] = CHESS_NONE
+                    it[col][row] = STONE_NONE
                 }
             }
         }

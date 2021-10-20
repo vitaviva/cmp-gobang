@@ -18,11 +18,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.vitaviva.common.ui.GoBangBoard
+import com.github.vitaviva.common.ui.GoBoard
 import com.github.vitaviva.common.viewmodel.AppViewModel
-import com.github.vitaviva.common.viewmodel.CHESS_BLACK
-import com.github.vitaviva.common.viewmodel.CHESS_NONE
-import com.github.vitaviva.common.viewmodel.CHESS_WHITE
+import com.github.vitaviva.common.viewmodel.STONE_BLACK
+import com.github.vitaviva.common.viewmodel.STONE_NONE
+import com.github.vitaviva.common.viewmodel.STONE_WHITE
 
 @Composable
 fun App() {
@@ -34,7 +34,7 @@ fun App() {
         }
         val viewModel = remember { AppViewModel() }
 
-        val chessColor by viewModel.chessColor.collectAsState(CHESS_NONE)
+        val stoneColor by viewModel.stoneColor.collectAsState(STONE_NONE)
         val remoteInfo by viewModel.pairedFlow.collectAsState("")
 
         Row(
@@ -45,22 +45,22 @@ fun App() {
         ) {
 
             Box(Modifier.weight(1f)) {
-                GoBangBoard(Modifier.fillMaxSize(), viewModel)
+                GoBoard(Modifier.fillMaxSize(), viewModel)
             }
 
             Column {
                 Row(Modifier.padding(start = 10.dp, end = 10.dp)) {
                     Text("White")
                     RadioButton(
-                        selected = chessColor == CHESS_WHITE,
-                        onClick = { viewModel.setChessColor(true) }
+                        selected = stoneColor == STONE_WHITE,
+                        onClick = { viewModel.setStoneColor(true) }
                     )
                 }
                 Row(Modifier.padding(start = 10.dp, end = 10.dp)) {
                     Text("Black")
                     RadioButton(
-                        selected = chessColor == CHESS_BLACK,
-                        onClick = { viewModel.setChessColor(false) }
+                        selected = stoneColor == STONE_BLACK,
+                        onClick = { viewModel.setStoneColor(false) }
                     )
                 }
 

@@ -3,7 +3,7 @@ package com.github.vitaviva.common.api
 import androidx.compose.ui.unit.IntOffset
 import com.github.vitaviva.common.api.Message.Companion.TypeChooseColor
 import com.github.vitaviva.common.api.Message.Companion.TypeEndGame
-import com.github.vitaviva.common.api.Message.Companion.TypePutChess
+import com.github.vitaviva.common.api.Message.Companion.TypePlaceStone
 import com.github.vitaviva.common.api.Message.Companion.TypeSysInfo
 import com.github.vitaviva.common.platform.initWsConnect
 import com.github.vitaviva.common.platform.receiveFromRemote
@@ -20,9 +20,9 @@ object Api {
 
     fun receiveMessage(): Flow<Message> = receiveFromRemote().map {
         when (it.metadata!!.readText()) {
-            TypePutChess -> {
+            TypePlaceStone -> {
                 val (x, y) = it.data.readText().split(",")
-                Message.PutChess(IntOffset(x.toInt(), y.toInt()))
+                Message.PlaceStone(IntOffset(x.toInt(), y.toInt()))
             }
             TypeChooseColor -> Message.ChooseColor(it.data.readText().toBoolean())
             TypeEndGame -> Message.EndGame

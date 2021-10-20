@@ -5,10 +5,10 @@ import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 
 
-actual val BlackChessBmp: ImageBitmap by lazy {
-    useResource("chess_black.png", ::loadImageBitmap)
+actual val BlackStoneBmp: ImageBitmap by lazy {
+    useResource("stone_black.png", ::loadImageBitmap)
 }
-actual val WhiteChessBmp: ImageBitmap by lazy {
-    useResource("chess_white.png", ::loadImageBitmap)
+actual val WhiteStoneBmp: ImageBitmap by lazy {
+    useResource("stone_white.png", ::loadImageBitmap)
 }
 
