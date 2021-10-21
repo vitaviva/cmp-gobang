@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         initPlatformResource(
             Res(
+                R.mipmap.board_bg,
                 R.mipmap.stone_white,
                 R.mipmap.stone_black,
                 R.string.server_host

@@ -18,6 +18,7 @@ internal lateinit var _resources: Resources
 internal lateinit var _res: Res
 
 data class Res(
+    @DrawableRes val background: Int,
     @DrawableRes val whiteStone: Int,
     @DrawableRes val blackStone: Int,
     @StringRes val serverHost: Int

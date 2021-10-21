@@ -28,7 +28,6 @@ import com.github.vitaviva.common.ui.BoardDrawInfo.GridHeight
 import com.github.vitaviva.common.ui.BoardDrawInfo.GridWidth
 import com.github.vitaviva.common.ui.BoardDrawInfo.calcLinePoints
 import com.github.vitaviva.common.viewmodel.AppViewModel
-import com.github.vitaviva.common.viewmodel.GAME_PLAYING
 import com.github.vitaviva.common.viewmodel.STONE_BLACK
 import com.github.vitaviva.common.viewmodel.STONE_WHITE
 import kotlinx.coroutines.launch
@@ -46,6 +45,7 @@ fun GoBoard(
 ) {
     val boardData by viewModel.boardData.collectAsState(Array(BOARD_SIZE) { IntArray(BOARD_SIZE) })
     val scope = rememberCoroutineScope()
+
 
     Box(modifier) {
         with(LocalDensity.current) {
@@ -66,7 +66,7 @@ fun GoBoard(
                 onDispose { }
             }
 
-            Canvas(modifier = modifier.fillMaxSize().pointerInput(Unit) {
+            Canvas(modifier = Modifier.fillMaxSize().pointerInput(Unit) {
                 scope.launch {
                     detectTapGestures {
                         viewModel.placeStone(convertPoint(it.x, it.y))
